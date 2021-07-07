@@ -162,11 +162,22 @@ abstract class AbstractSeed implements SeedInterface
      */
     public function insert($table, $data)
     {
-        // convert to table object
-        if (is_string($table)) {
-            $table = new Table($table, [], $this->getAdapter());
-        }
-        $table->insert($data)->save();
+        $tableInstance = new Table($table, [], $this->getAdapter());
+        $tableInstance->insert($data)->save();
+    }
+
+    /**
+     * @param string $tableName Table name.
+     *
+     * @return bool
+     */
+    public function hasData(string $tableName): bool
+    {
+        $table = $this->getAdapter()->quoteTableName($tableName);
+        $countQuery = $this->getAdapter()->query('SELECT COUNT(*) as count FROM ' . $table);
+        $res = $countQuery->fetchAll();
+
+        return $res[0]['count'] > 0;
     }
 
     /**
